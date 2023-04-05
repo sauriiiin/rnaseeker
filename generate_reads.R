@@ -28,4 +28,4 @@ counts_df$sample_name <- sample_names[match(colnames(counts_df), sample_names)]
 counts_df$replicate <- replicate_info[match(colnames(counts_df), sample_names)]
 
 # Write counts table to CSV file
-write_csv(counts_df, output_file)
+write.csv(counts_df, output_file)

@@ -10,7 +10,7 @@ sample_names <- strsplit(args[3], ",")[[1]]
 replicate_info <- strsplit(args[4], ",")[[1]]
 
 # Read in read counts from CSV file
-counts_df <- read_csv(input_file, col_types = cols())
+counts_df <- read.csv(input_file, col_types = cols())
 
 # Create DESeq2 object
 dds <- DESeqDataSetFromMatrix(countData = counts_df[, sample_names],
@@ -28,4 +28,4 @@ res_df <- as.data.frame(res)
 res_df$ensembl_gene_id <- row.names(res_df)
 
 # Write results table to CSV file
-write_csv(res_df, output_file)
+write.csv(res_df, output_file)

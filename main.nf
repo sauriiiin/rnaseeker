@@ -2,7 +2,6 @@ params {
   genome_fasta = "sacCer3.fa"
   gtf_file = "sacCer3.gtf"
   salmon_index = "sacCer3_salmon_index"
-  adapters = "TruSeq3-PE.fa"
   r1_trim = 10
   r2_trim = 10
 }
@@ -64,7 +63,7 @@ process go_kegg {
   set pair_id, file(deseq2_tsv) from deseq2_ch
   
   output:
-  file("${pair_id}_GO_enrichment.tsv"), file("${pair_id}_KEGG_enrichment.tsv") into go_kegg_ch
+  file("${pair_id}_GO_enrichment.tsv") into go_kegg_ch
   
   script:
   """
