@@ -32,7 +32,9 @@ RUN R -e 'install.packages(c("tidyverse", "tximport", "DESeq2", "reactome.db", "
 RUN curl -fsSL https://get.nextflow.io | bash && \
     mv nextflow /usr/local/bin/
 
-# WORKDIR /app
+RUN mkdir /workdir
+WORKDIR /workdir
+
 # Copy pipeline files
 COPY nextflow.config .
 COPY main.nf .
@@ -41,6 +43,6 @@ COPY diff_exp.R .
 COPY go_kegg.R .
 
 # Run the pipeline
-CMD ["nextflow", "run", "-with-docker", "-with-trace", "-resume", "-c"]
+CMD ["nextflow", "run", "-c", "nextflow.config"]
 
-ENTRYPOINT ["nextflow", "run", "main.nf", "-params-file", "nextflow.config"]
+ENTRYPOINT ["nextflow", "run", "main.nf"]
