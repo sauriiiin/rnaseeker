@@ -1,31 +1,25 @@
 args <- commandArgs(trailingOnly = TRUE)
-
-library(tidyverse)
-library(tximport)
+options(warn=-1)
 
 # Get input arguments
 input_dir <- args[1]
-output_file <- args[2]
-sample_names <- strsplit(args[3], ",")[[1]]
-replicate_info <- strsplit(args[4], ",")[[1]]
+output_dir <- args[2]
 
-# Define function to read in Salmon output and generate read counts
-get_read_counts <- function(salmon_file) {
-  tx2gene <- read_tsv(paste0(input_dir, "/tx2gene.tsv"), col_names = c("tx_id", "gene_id"))
-  txi <- tximport(files = salmon_file, type = "salmon", tx2gene = tx2gene)
-  rownames(txi$counts) <- txi$genes$gene_id
-  colnames(txi$counts) <- gsub(".quant", "", basename(salmon_file))
-  return(txi$counts)
+
+##### Gather directories with samlon quants and read raw output
+dirs<-list.dirs(path = sprintf("%s/salmon_quant",input_dir), full.names = TRUE, recursive = FALSE)
+temp<-read.delim(paste(dirs[1],'quant.sf',sep = '/'),stringsAsFactors = FALSE)
+raw_counts <- temp[,c(1,5)]
+
+##### Compile raw count data.frame
+for (i in seq(2,length(dirs))) {
+  temp<-read.delim(paste(dirs[i],'quant.sf',sep = '/'),stringsAsFactors = FALSE)
+  raw_counts <- merge(raw_counts, temp[,c(1,5)], by = 'Name', all = T)
 }
 
-# Read in Salmon output and generate read counts for each sample
-salmon_files <- list.files(path = input_dir, pattern = "quant.sf", full.names = TRUE)
-counts_list <- lapply(salmon_files, get_read_counts)
-counts_df <- reduce(counts_list, full_join, by = "gene_id")
-
-# Add sample names and replicate information to counts table
-counts_df$sample_name <- sample_names[match(colnames(counts_df), sample_names)]
-counts_df$replicate <- replicate_info[match(colnames(counts_df), sample_names)]
+##### Update column names with file names from foo.bar
+sample_names <- readLines(sprintf('%s/foo.bar',input_dir))
+colnames(raw_counts) <- c('ORF', sample_names)
 
 # Write counts table to CSV file
-write.csv(counts_df, output_file)
+write.csv(file = sprintf('%s/raw_counts.csv',output_dir), raw_counts, row.names = FALSE)
